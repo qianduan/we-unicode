@@ -1,0 +1,148 @@
+<html>
+<head>
+	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+	<meta charset="UTF-8">
+	<title>微信特殊字符生成器</title>
+	<link rel="stylesheet" href="https://res.wx.qq.com/open/libs/weui/0.4.1/weui.css">
+	<style>body,html{height:100%;-webkit-tap-highlight-color:transparent}body{overflow-x:hidden;background-color:#fbf9fe}.container{height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch}.container>div{background-color:#fbf9fe}.hd{padding:2em 0}.page_title{text-align:center;font-size:34px;color:#3cc51f;font-weight:400;margin:0 15%}
+	</style>
+</head>
+
+<body>
+<div class="container" id="container">
+	<div class="hd">
+		<h1 class="page_title">特殊字符生成器</h1>
+	</div>
+	<div class="bd">
+		<div class="weui_cells weui_cells_form">
+			<div class="weui_cell ">
+				<div class="weui_cell_hd"><label for="" class="weui_label">名字</label></div>
+				<div class="weui_cell_bd weui_cell_primary">
+					<input class="weui_input" type="text" pattern="" id="myName" value="" placeholder="比如：小明"/>
+				</div>
+			</div>
+			<div class="weui_cell ">
+				<div class="weui_cell_hd"><label for="" class="weui_label">后缀</label></div>
+				<div class="weui_cell_bd weui_cell_primary">
+					<input class="weui_input" type="text" pattern="" id="myFun" value="" placeholder="比如：并说，你是个好人"/>
+				</div>
+			</div>
+		</div>
+		<div class="weui_btn_area">
+			<a href="javascript:;" id="btnAdd" class="weui_btn weui_btn_primary">确定</a>
+		</div>
+		<div class="weui_cells_title">长按复制，修改微信名字并修改性别后生效</div>
+		<div id="results" class="weui_cells">
+			
+		</div>
+		<div class="weui_btn_area" id="clearList" style="display:none">
+			<a href="javascript:;"  class="weui_btn weui_btn_default">清空</a>
+		</div>
+	</div>
+</div>
+<template id="resultTpl">
+	<div class="weui_cell">
+		<div class="weui_cell_bd weui_cell_primary" id="result_text">
+		</div>
+	</div>
+</template>
+<div class="weui_dialog_alert" id="dialog2" style="display: none">
+	<div class="weui_mask"></div>
+	<div class="weui_dialog">
+		<div class="weui_dialog_hd"><strong class="weui_dialog_title">纳尼？</strong></div>
+		<div class="weui_dialog_bd">&#8238;不写点儿什么么？&#8237;</div>
+		<div class="weui_dialog_ft">
+			<a href="javascript:;" class="weui_btn_dialog primary">确定</a>
+		</div>
+	</div>
+</div>
+<script src="https://res.wx.qq.com/open/libs/zepto/1.1.6/zepto.js"></script>
+<script>
+		// revert characters
+		function reverse(s){
+			return s.split("").reverse().join("");
+		}
+		// add items
+		function addList(){
+			var results = document.querySelector("#results");
+			var tpl = document.querySelector("#resultTpl");
+			var name = $("#myName").attr("value");
+			var suffix = $("#myFun").attr("value");
+			var dialog = $("#dialog2");
+
+			if (name == 0){
+				dialog.show();
+				return false;
+			}
+
+			suffix = reverse(suffix);
+
+			if(window.localStorage){
+				localStorage.setItem(name,suffix);
+			}else{
+				alert("dont support localStorage")
+			}
+			
+			tpl.content.querySelector('#result_text').innerHTML = name+"&#8238;"+suffix +"&#8237;";
+			results.appendChild(tpl.content.cloneNode(true));
+
+			$("#clearList").show();
+			console.log(name+" "+suffix+" added")
+		}
+		// clear list
+		function clearList(){
+			var list = window.localStorage;
+			var cell = $("#results .weui_cell")
+			for (var i = list.length - 1; i >= 0; i--) {
+				localStorage.removeItem(list.key(i));
+
+				cell.remove();
+			}
+			$("#clearList").hide();
+			console.log("list clearred")
+		}
+		function updateList(){
+			if(!window.localStorage){
+				// alert("fuck")
+				return false;
+			}
+			var results = document.querySelector("#results");
+			var tpl = document.querySelector("#resultTpl");
+			var list = window.localStorage;
+			// alert(list.length)
+			if(list.length == 0){
+				$("#clearList").hide();
+			}else{
+				for (var i = list.length - 1; i >= 0; i--) {
+					// alert(list.key(i));
+					var a1 = list.key(i)
+					var b1 = localStorage[a1];
+					// alert(a);
+					tpl.content.querySelector('#result_text').innerHTML = a1+"&#8238;"+b1 +"&#8237;";
+					results.appendChild(tpl.content.cloneNode(true));
+				}
+				$("#clearList").show();
+			}
+			console.log("list updated","，total "+ list.length + " items")
+		}
+
+		//init list
+		updateList() 
+
+		$(".weui_btn_dialog").click(
+			function(){
+			$("#dialog2").hide();
+		})
+
+		$("#clearList .weui_btn").click(
+			function(){
+				clearList();
+		})
+
+		$("#btnAdd").click(
+			function(){
+				addList();
+		})
+	</script>
+</body>
+</html>
